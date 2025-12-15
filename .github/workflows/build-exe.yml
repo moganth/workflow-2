@@ -1,0 +1,40 @@
+name: Build Windows EXE using PyInstaller
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # allows manual trigger from GitHub UI
+
+jobs:
+  build-exe:
+    runs-on: windows-latest
+
+    steps:
+      # Step 1: Checkout repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Step 3: Install dependencies
+      - name: Install PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+
+      # Step 4: Build EXE files
+      - name: Build executables
+        run: |
+          pyinstaller --onefile calculator.py
+          pyinstaller --onefile --noconsole hello_gui.py
+
+      # Step 5: Upload EXE files
+      - name: Upload EXE artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe-files
+          path: dist/*.exe
